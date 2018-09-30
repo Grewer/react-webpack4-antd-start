@@ -1,0 +1,32 @@
+{
+  "extends": [
+    "tslint:recommended",
+    "tslint-react",
+    "tslint-config-prettier"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "config/**/*.js",
+      "node_modules/**/*.ts",
+      "coverage/lcov-report/*.js"
+    ]
+  },
+  "rules": {
+    "ordered-imports": false,
+    "member-access": true,
+    //设置成员对象的访问权限（public,private,protect)
+    "await-promise": true,
+    //警告不是一个promise的await
+    "curly": true,
+    //for if do while 要有括号
+    "no-duplicate-imports": true,
+    "member-ordering": false,
+    "object-literal-sort-keys": false,
+    "no-console": false,
+    "no-implicit-dependencies": false,
+    //不允许在项目的package.json中导入未列为依赖项的模块
+    "triple-equals": true,
+    // 必须使用恒等号，进行等于比较
+    "no-unused-expression": false
+  }
+}
