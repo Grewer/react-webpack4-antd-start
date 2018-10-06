@@ -1,14 +1,14 @@
 import * as React from 'react';
 import './App.css';
 
-// import logo from './logo.svg'; // 有问题
+import logo from './logo.svg'; // 有问题
 
 class App extends React.Component {
   public render() {
     return (
       <div className="App">
         <header className="App-header">
-          <img  className="App-logo" alt="logo" />
+          <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
         <p className="App-intro">
