@@ -19,7 +19,6 @@ const chalk = require('chalk');
 const fs = require('fs-extra');
 const webpack = require('webpack');
 const config = require('../config/webpack.config.prod');
-const es5config = require('../config/webpack.config.prod.es5');
 const paths = require('../config/paths');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
@@ -27,8 +26,7 @@ const printHostingInstructions = require('react-dev-utils/printHostingInstructio
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
 const printBuildError = require('react-dev-utils/printBuildError');
 
-const measureFileSizesBeforeBuild =
-  FileSizeReporter.measureFileSizesBeforeBuild;
+const measureFileSizesBeforeBuild = FileSizeReporter.measureFileSizesBeforeBuild;
 const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild;
 const useYarn = fs.existsSync(paths.yarnLockFile);
 
@@ -47,26 +45,26 @@ measureFileSizesBeforeBuild(paths.appBuild)
   .then(previousFileSizes => {
     // Remove all content but keep the directory so that
     // if you're in it, you don't end up in Trash
-    fs.emptyDirSync(paths.appBuild); //会清空 build 文件
+    fs.emptyDirSync(paths.appBuild);
     // Merge with the public folder
     copyPublicFolder();
     // Start the webpack build
     return build(previousFileSizes);
   })
   .then(
-    ({stats, previousFileSizes, warnings, prevResult}) => {
+    ({ stats, previousFileSizes, warnings }) => {
       if (warnings.length) {
         console.log(chalk.yellow('Compiled with warnings.\n'));
         console.log(warnings.join('\n\n'));
         console.log(
           '\nSearch for the ' +
-          chalk.underline(chalk.yellow('keywords')) +
-          ' to learn more about each warning.'
+            chalk.underline(chalk.yellow('keywords')) +
+            ' to learn more about each warning.'
         );
         console.log(
           'To ignore, add ' +
-          chalk.cyan('// eslint-disable-next-line') +
-          ' to the line before.\n'
+            chalk.cyan('// eslint-disable-next-line') +
+            ' to the line before.\n'
         );
       } else {
         console.log(chalk.green('Compiled successfully.\n'));
@@ -80,6 +78,7 @@ measureFileSizesBeforeBuild(paths.appBuild)
         WARN_AFTER_BUNDLE_GZIP_SIZE,
         WARN_AFTER_CHUNK_GZIP_SIZE
       );
+      console.log();
 
       const appPackage = require(paths.appPackageJson);
       const publicUrl = paths.publicUrl;
@@ -100,10 +99,13 @@ measureFileSizesBeforeBuild(paths.appBuild)
     }
   );
 
+// Create the production build and print the deployment instructions.
+function build(previousFileSizes) {
+  console.log('Creating an optimized production build...');
 
-function compiler(config, previousFileSizes, prevResult) {
+  let compiler = webpack(config);
   return new Promise((resolve, reject) => {
-    config.run((err, stats) => {
+    compiler.run((err, stats) => {
       if (err) {
         return reject(err);
       }
@@ -125,44 +127,19 @@ function compiler(config, previousFileSizes, prevResult) {
         console.log(
           chalk.yellow(
             '\nTreating warnings as errors because process.env.CI = true.\n' +
-            'Most CI servers set it automatically.\n'
+              'Most CI servers set it automatically.\n'
           )
         );
         return reject(new Error(messages.warnings.join('\n\n')));
       }
-      // console.log(stats)
-      let result = {
+      return resolve({
         stats,
         previousFileSizes,
         warnings: messages.warnings,
-      }
-
-      if (prevResult) {
-        result.prevResult = prevResult
-      }
-      return resolve(result);
+      });
     });
   });
-
 }
-
-// Create the production build and print the deployment instructions.
-async function build(previousFileSizes) {
-  console.log('Creating an optimized production build...');
-
-  let modernConfig = webpack(config);
-  let es5Config = webpack(es5config)
-  let result = await compiler(es5Config, previousFileSizes);
-  // remove main.es5.css
-  let arr = Object.keys(result.stats.compilation.assets)
-  const path = arr.find(v => v.indexOf('css') > -1 && v.indexOf('main') > -1)
-  await fs.remove(result.previousFileSizes.root + '/' + path)
-
-  result = await compiler(modernConfig, previousFileSizes, result);
-
-  return result
-}
-
 
 function copyPublicFolder() {
   fs.copySync(paths.appPublic, paths.appBuild, {
