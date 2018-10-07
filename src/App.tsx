@@ -1,7 +1,8 @@
 import * as React from 'react';
 import './App.css';
-
+import {Button} from 'antd';
 import logo from './logo.svg'; // 有问题
+import styles from './AppTest.less'
 
 class App extends React.Component {
   public render() {
@@ -11,6 +12,13 @@ class App extends React.Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
+        <Button type={"primary"}>测试 antd 按钮</Button>
+        <div className={styles.Grewer}>
+          测试 less + css modeules
+          <span >
+            子标签
+          </span>
+        </div>
         <p className="App-intro">
           To get started, edit <code>src/App.tsx</code> and save to reload.
         </p>
