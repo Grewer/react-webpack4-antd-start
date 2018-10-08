@@ -47,3 +47,8 @@ npm i -S webpack@4.20.2 webpack-dev-server@3.1.4 fork-ts-checker-webpack-plugin@
 - package.json
 - tsconfig.json
 - tslint.json
+
+
+## question
+
+记得升级 @types/prop-types 为15.5.6
