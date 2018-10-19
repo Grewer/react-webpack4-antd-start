@@ -4,18 +4,28 @@ import {Button} from 'antd';
 import logo from './logo.svg'; // 有问题
 import styles from './AppTest.less'
 
+import fetch from "gfetch"
+
+
 class App extends React.Component {
+  public async componentDidMount() {
+    console.log(fetch)
+    fetch.get('qwe', {qwe: 123}).then(res => {
+      console.log(res)
+    })
+  }
+
   public render() {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+          <img src={logo} className="App-logo" alt="logo"/>
           <h1 className="App-title">Welcome to React</h1>
         </header>
         <Button type={"primary"}>测试 antd 按钮</Button>
         <div className={styles.Grewer}>
           测试 less + css modeules
-          <span >
+          <span>
             子标签
           </span>
         </div>

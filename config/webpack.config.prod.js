@@ -62,7 +62,7 @@ module.exports = {
   // You can exclude the *.map files from the build during deployment.
   devtool: shouldUseSourceMap ? 'source-map' : false,
   // In production, we only want to load the polyfills and the app code.
-  entry: [require.resolve('./polyfills'), paths.appIndexJs],
+  entry: [ paths.appIndexJs],
   output: {
     // The build folder.
     path: paths.appBuild,
@@ -163,10 +163,32 @@ module.exports = {
             include: paths.appSrc,
             use: [
               {
-                loader: require.resolve('babel-loader')
-              },
-              {
                 loader: require.resolve('awesome-typescript-loader'),
+                options: {
+                  "useBabel": true,
+                  "babelOptions": {
+                    "babelrc": false, /* Important line */
+                    "presets": [
+                      ["@babel/preset-env", {
+                        "targets": "last 2 versions, ie 11",
+                        "modules": false,
+                        "useBuiltIns": 'usage'
+                      }]
+                    ],
+                    "plugins":[
+                      [
+                        "import",
+                        {
+                          "libraryName": "antd",
+                          "style": true
+                        }
+                      ],
+                      "@babel/plugin-syntax-dynamic-import"
+                    ]
+                  },
+                  "babelCore": "@babel/core",
+                  useCache: true,
+                }
               },
             ],
           },
