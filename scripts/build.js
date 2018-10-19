@@ -25,6 +25,8 @@ const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions');
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
 const printBuildError = require('react-dev-utils/printBuildError');
+const yazl = require("yazl");
+
 
 const measureFileSizesBeforeBuild = FileSizeReporter.measureFileSizesBeforeBuild;
 const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild;
@@ -39,6 +41,53 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
   process.exit(1);
 }
 
+function getInfoByDir(dir, former = '') {
+  const files = fs.readdirSync(dir)
+  let pathArray = []
+  files.forEach(function (filename) {
+    const fileDirName = path.join(dir, filename);
+
+    const stats = fs.statSync(fileDirName)
+    const isFile = stats.isFile();//是文件
+    const isDir = stats.isDirectory();//是文件夹
+    if (isFile) {
+      if (filename.charAt(0) !== '.') {
+        pathArray.push({fileDirName, filename: former + filename})
+      }
+    }
+    if (isDir) {
+      const res = getInfoByDir(fileDirName, former + filename + '/');//递归，如果是文件夹，就继续遍历该文件夹下面的文件
+      pathArray.push(...res)
+    }
+
+  })
+  return pathArray
+}
+
+
+function Gzip() {
+  const buildPath = path.resolve(__dirname) + "/../build/"
+
+  const files = getInfoByDir(buildPath)
+  // 格式: [{fileDirName:'/Users/admin/XXX/react-webpack4-antd-start/build/favicon.ico', filename: 'favicon.ico'}]
+  // 会自动过滤名称第一个为 '.' 的文件
+
+  const zipfile = new yazl.ZipFile();
+
+  files.forEach(function (value) {
+    zipfile.addFile(value.fileDirName, value.filename);
+  })
+  const packageJson = fs.readJsonSync(paths.appPackageJson)
+  const myDate = new Date();
+  const time = myDate.toLocaleString();
+  zipfile.outputStream.pipe(fs.createWriteStream("build/" + packageJson.name + time + ".zip")).on("close", function () {
+    // 输出  从根目录 开始 前面不需要加 '/'
+    console.log("done");
+  });
+  zipfile.end();
+}
+
+
 // First, read the current file sizes in build directory.
 // This lets us display how much they changed later.
 measureFileSizesBeforeBuild(paths.appBuild)
@@ -52,19 +101,19 @@ measureFileSizesBeforeBuild(paths.appBuild)
     return build(previousFileSizes);
   })
   .then(
-    ({ stats, previousFileSizes, warnings }) => {
+    ({stats, previousFileSizes, warnings}) => {
       if (warnings.length) {
         console.log(chalk.yellow('Compiled with warnings.\n'));
         console.log(warnings.join('\n\n'));
         console.log(
           '\nSearch for the ' +
-            chalk.underline(chalk.yellow('keywords')) +
-            ' to learn more about each warning.'
+          chalk.underline(chalk.yellow('keywords')) +
+          ' to learn more about each warning.'
         );
         console.log(
           'To ignore, add ' +
-            chalk.cyan('// eslint-disable-next-line') +
-            ' to the line before.\n'
+          chalk.cyan('// eslint-disable-next-line') +
+          ' to the line before.\n'
         );
       } else {
         console.log(chalk.green('Compiled successfully.\n'));
@@ -91,6 +140,10 @@ measureFileSizesBeforeBuild(paths.appBuild)
         buildFolder,
         useYarn
       );
+
+      Gzip()
+
+
     },
     err => {
       console.log(chalk.red('Failed to compile.\n'));
@@ -127,7 +180,7 @@ function build(previousFileSizes) {
         console.log(
           chalk.yellow(
             '\nTreating warnings as errors because process.env.CI = true.\n' +
-              'Most CI servers set it automatically.\n'
+            'Most CI servers set it automatically.\n'
           )
         );
         return reject(new Error(messages.warnings.join('\n\n')));
