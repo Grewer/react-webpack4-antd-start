@@ -52,3 +52,12 @@ npm i -S webpack@4.20.2 webpack-dev-server@3.1.4 fork-ts-checker-webpack-plugin@
 ## question
 
 记得升级 @types/prop-types 为15.5.6
+
+
+## 额外需添加的依赖
+
+- "file-loader": "^2.0.0"
+- "babel-loader": "7.1.2"  
+- "@types/prop-types": "^15.5.6",
+-  "@types/react-router": "^4.0.31",
+- "@types/react-router-dom": "^4.3.1",
